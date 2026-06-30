@@ -3,7 +3,7 @@ name: DevOps Command Explorer Deploy
 on:
   push:
     branches:
-      - master
+      - main
 
 permissions:
   id-token: write
