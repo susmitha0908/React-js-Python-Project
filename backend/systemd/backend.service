@@ -3,9 +3,9 @@ Description=DevOps Command Explorer FastAPI Backend
 After=network.target
 
 [Service]
-User=ec2-user
-WorkingDirectory=/home/ec2-user/devops-command-explorer/backend
-ExecStart=/home/ec2-user/devops-command-explorer/backend/venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8000
+User=ubuntu
+WorkingDirectory=/home/ubuntu/devops-command-explorer/backend
+ExecStart=/home/ubuntu/devops-command-explorer/backend/venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8000
 Restart=always
 RestartSec=5
 Environment=PORT=8000

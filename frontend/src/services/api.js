@@ -1,7 +1,19 @@
 import axios from 'axios';
 
-// Set up base URL from environment or fallback to localhost:8000
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+// Set up base URL dynamically to point to port 8000 on the same host if no specific env is set
+const getApiBaseUrl = () => {
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL;
+  }
+  if (typeof window !== 'undefined') {
+    const protocol = window.location.protocol;
+    const hostname = window.location.hostname;
+    return `${protocol}//${hostname}:8000`;
+  }
+  return 'http://localhost:8000';
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 const api = axios.create({
   baseURL: API_BASE_URL,

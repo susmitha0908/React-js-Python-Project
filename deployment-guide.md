@@ -62,7 +62,7 @@ To configure OIDC so GitHub Actions can authenticate with AWS without using perm
 
 Log in to your EC2 instance via SSH:
 ```bash
-ssh -i "your-key.pem" ec2-user@your-ec2-ip
+ssh -i "your-key.pem" ubuntu@your-ec2-ip
 ```
 
 Update system and install Python, Git, and Node.js:
@@ -85,7 +85,7 @@ sudo dnf install nodejs -y
 1. Open your repository on GitHub.
 2. Go to **Settings** -> **Actions** -> **Runners** -> **New self-hosted runner**.
 3. Select **Linux** and **x64**.
-4. Run the download and configuration commands displayed on the screen inside the `/home/ec2-user` directory of the EC2 instance. Example:
+4. Run the download and configuration commands displayed on the screen inside the `/home/ubuntu` directory of the EC2 instance. Example:
    ```bash
    mkdir actions-runner && cd actions-runner
    curl -o actions-runner-linux-x64-2.316.0.tar.gz -L https://github.com/actions/runner/releases/download/v2.316.0/actions-runner-linux-x64-2.316.0.tar.gz
@@ -111,9 +111,9 @@ Description=DevOps Command Explorer FastAPI Backend
 After=network.target
 
 [Service]
-User=ec2-user
-WorkingDirectory=/home/ec2-user/devops-command-explorer/backend
-ExecStart=/home/ec2-user/devops-command-explorer/backend/venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8000
+User=ubuntu
+WorkingDirectory=/home/ubuntu/devops-command-explorer/backend
+ExecStart=/home/ubuntu/devops-command-explorer/backend/venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8000
 Restart=always
 RestartSec=5
 Environment=PORT=8000
@@ -129,8 +129,8 @@ Description=DevOps Command Explorer React Frontend
 After=network.target
 
 [Service]
-User=ec2-user
-WorkingDirectory=/home/ec2-user/devops-command-explorer/frontend
+User=ubuntu
+WorkingDirectory=/home/ubuntu/devops-command-explorer/frontend
 ExecStart=/usr/bin/node server.js
 Restart=always
 RestartSec=5
@@ -170,4 +170,4 @@ git add .
 git commit -m "feat: setup full-stack portal and systemd services"
 git push origin main
 ```
-GitHub Actions will automatically run the CI/CD pipeline on the runner, check out the code, compile the assets, copy them to `/home/ec2-user/devops-command-explorer/`, configure systemd services, and restart the backend/frontend service processes.
+GitHub Actions will automatically run the CI/CD pipeline on the runner, check out the code, compile the assets, copy them to `/home/ubuntu/devops-command-explorer/`, configure systemd services, and restart the backend/frontend service processes.
