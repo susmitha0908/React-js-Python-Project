@@ -1,0 +1,14 @@
+[Unit]
+Description=DevOps Command Explorer React Frontend
+After=network.target
+
+[Service]
+User=ec2-user
+WorkingDirectory=/home/ec2-user/devops-command-explorer/frontend
+ExecStart=/usr/bin/node server.js
+Restart=always
+RestartSec=5
+Environment=PORT=3000
+
+[Install]
+WantedBy=multi-user.target

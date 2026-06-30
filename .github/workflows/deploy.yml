@@ -1,0 +1,99 @@
+name: DevOps Command Explorer Deploy
+
+on:
+  push:
+    branches:
+      - master
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    name: Native Systemd Deploy
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Verify AWS Connection
+        run: aws sts get-caller-identity
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Build React Frontend
+        run: |
+          cd devops-command-explorer/frontend
+          npm install
+          npm run build
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Python Backend Dependencies
+        run: |
+          cd devops-command-explorer/backend
+          python3 -m venv venv
+          ./venv/bin/pip install --upgrade pip
+          ./venv/bin/pip install -r requirements.txt
+
+      - name: Copy Updated Files to Deployment Directories
+        run: |
+          sudo mkdir -p /home/ubuntu/devops-command-explorer/frontend
+          sudo mkdir -p /home/ubuntu/devops-command-explorer/backend
+
+          sudo cp -R devops-command-explorer/frontend/dist \
+            /home/ubuntu/devops-command-explorer/frontend/
+
+          sudo cp devops-command-explorer/frontend/server.js \
+            /home/ubuntu/devops-command-explorer/frontend/
+
+          sudo cp -R devops-command-explorer/backend/app \
+            /home/ubuntu/devops-command-explorer/backend/
+
+          sudo cp -R devops-command-explorer/backend/venv \
+            /home/ubuntu/devops-command-explorer/backend/
+
+          sudo cp devops-command-explorer/backend/requirements.txt \
+            /home/ubuntu/devops-command-explorer/backend/
+
+          sudo chown -R ubuntu:ubuntu /home/ubuntu/devops-command-explorer
+
+      - name: Configure Systemd Service Files
+        run: |
+          sudo cp devops-command-explorer/backend/systemd/backend.service \
+            /etc/systemd/system/backend.service
+
+          sudo cp devops-command-explorer/frontend/systemd/frontend.service \
+            /etc/systemd/system/frontend.service
+
+          sudo systemctl daemon-reload
+          sudo systemctl enable backend.service
+          sudo systemctl enable frontend.service
+
+      - name: Restart Backend Service
+        run: sudo systemctl restart backend.service
+
+      - name: Restart Frontend Service
+        run: sudo systemctl restart frontend.service
+
+      - name: Verify Both Services Are Running
+        run: |
+          sudo systemctl is-active --quiet backend.service
+          echo "✅ Backend is running"
+
+          sudo systemctl is-active --quiet frontend.service
+          echo "✅ Frontend is running"
