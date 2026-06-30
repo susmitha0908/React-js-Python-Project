@@ -34,7 +34,7 @@ jobs:
 
       - name: Build React Frontend
         run: |
-          cd frontend
+          cd devops-command-explorer/frontend
           npm install
           npm run build
 
@@ -45,8 +45,8 @@ jobs:
 
       - name: Install Python Backend Dependencies
         run: |
-          cd backend
-          python -m venv venv
+          cd devops-command-explorer/backend
+          python3 -m venv venv
           ./venv/bin/pip install --upgrade pip
           ./venv/bin/pip install -r requirements.txt
 
@@ -55,19 +55,30 @@ jobs:
           sudo mkdir -p /home/ubuntu/devops-command-explorer/frontend
           sudo mkdir -p /home/ubuntu/devops-command-explorer/backend
 
-          sudo cp -R frontend/dist /home/ubuntu/devops-command-explorer/frontend/
-          sudo cp frontend/server.js /home/ubuntu/devops-command-explorer/frontend/
+          sudo cp -R devops-command-explorer/frontend/dist \
+            /home/ubuntu/devops-command-explorer/frontend/
 
-          sudo cp -R backend/app /home/ubuntu/devops-command-explorer/backend/
-          sudo cp -R backend/venv /home/ubuntu/devops-command-explorer/backend/
-          sudo cp backend/requirements.txt /home/ubuntu/devops-command-explorer/backend/
+          sudo cp devops-command-explorer/frontend/server.js \
+            /home/ubuntu/devops-command-explorer/frontend/
+
+          sudo cp -R devops-command-explorer/backend/app \
+            /home/ubuntu/devops-command-explorer/backend/
+
+          sudo cp -R devops-command-explorer/backend/venv \
+            /home/ubuntu/devops-command-explorer/backend/
+
+          sudo cp devops-command-explorer/backend/requirements.txt \
+            /home/ubuntu/devops-command-explorer/backend/
 
           sudo chown -R ubuntu:ubuntu /home/ubuntu/devops-command-explorer
 
       - name: Configure Systemd Service Files
         run: |
-          sudo cp backend/systemd/backend.service /etc/systemd/system/backend.service
-          sudo cp frontend/systemd/frontend.service /etc/systemd/system/frontend.service
+          sudo cp devops-command-explorer/backend/systemd/backend.service \
+            /etc/systemd/system/backend.service
+
+          sudo cp devops-command-explorer/frontend/systemd/frontend.service \
+            /etc/systemd/system/frontend.service
 
           sudo systemctl daemon-reload
           sudo systemctl enable backend.service
